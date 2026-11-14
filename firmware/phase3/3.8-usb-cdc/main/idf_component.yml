@@ -1,0 +1,4 @@
+## The TinyUSB device stack is a managed component: the first build downloads it.
+dependencies:
+  espressif/esp_tinyusb:
+    version: "^2.0.1~1"

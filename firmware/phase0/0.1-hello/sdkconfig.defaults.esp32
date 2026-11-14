@@ -1,0 +1,3 @@
+# Classic ESP32 boards (ESP32-CAM, DevKitC-VE): 4 MB flash is the safe common setting.
+# PSRAM is left off here; lesson 1.10 turns it on per board.
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y

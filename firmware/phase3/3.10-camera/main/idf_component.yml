@@ -1,0 +1,4 @@
+## The camera driver is a managed component: the first build downloads it.
+dependencies:
+  espressif/esp32-camera:
+    version: "*"

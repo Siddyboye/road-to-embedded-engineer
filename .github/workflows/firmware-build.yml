@@ -1,0 +1,98 @@
+# Builds every firmware lab for both chip families on both supported ESP-IDF versions.
+# Add a lab by adding its path to `project`.
+# NOTE: this workflow has not run yet. Its first run is the compile gate for the labs.
+name: firmware-build
+on:
+  push:
+    paths: ['firmware/**', '.github/workflows/firmware-build.yml']
+  pull_request:
+    paths: ['firmware/**']
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        idf: [v6.1, v6.0.3]
+        target: [esp32s3, esp32]
+        project:
+          - firmware/phase0/0.1-hello
+          - firmware/phase0/0.3-blink
+          - firmware/phase0/0.5-pin
+          - firmware/phase0/0.7-bounce
+          - firmware/phase0/0.8-adc
+          - firmware/phase0/0.9-wait
+          - firmware/phase0/0.13-registers
+        exclude:
+          - { target: esp32, project: firmware/phase0/0.8-adc }   # pins chosen for the S3's ADC1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ${{ matrix.project }} for ${{ matrix.target }} on ESP-IDF ${{ matrix.idf }}
+        uses: espressif/esp-idf-ci-action@v1
+        with:
+          esp_idf_version: ${{ matrix.idf }}
+          target: ${{ matrix.target }}
+          path: ${{ matrix.project }}
+  # Reference solutions for Phases 2 and 3. Written for the ESP32-S3 only.
+  reference:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        idf: [v6.1, v6.0.3]
+        project:
+          - firmware/phase2/2.1-opendrain
+          - firmware/phase2/2.2-isr-queue
+          - firmware/phase2/2.3-gptimer
+          - firmware/phase2/2.4-ledc
+          - firmware/phase2/2.5-echo
+          - firmware/phase2/2.6-adc
+          - firmware/phase2/2.7-ws2812
+          - firmware/phase2/2.8-encoder
+          - firmware/phase2/2.10-watchdog
+          - firmware/phase2/2.12-sleep
+          - firmware/phase3/3.1a-uart-bitbang
+          - firmware/phase3/3.1b-uart-shell
+          - firmware/phase3/3.1c-uart-frames
+          - firmware/phase3/3.2a-i2c-bitbang
+          - firmware/phase3/3.2b-mpu6050
+          - firmware/phase3/3.2c-ssd1306
+          - firmware/phase3/3.2d-bmp280
+          - firmware/phase3/3.2e-ds3231
+          - firmware/phase3/3.3a-spi-bitbang
+          - firmware/phase3/3.3b-st7789
+          - firmware/phase3/3.3c-sd-raw
+          - firmware/phase3/3.3d-mcp3008
+          - firmware/phase3/3.4-i2s-mic
+          - firmware/phase3/3.5-ds18b20
+          - firmware/phase3/3.7-modbus-slave
+          - firmware/phase2/2.9-touch
+          - firmware/phase2/2.11-adc-continuous
+          - firmware/phase3/3.6-can
+          - firmware/phase3/3.8-usb-cdc
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ${{ matrix.project }} on ESP-IDF ${{ matrix.idf }}
+        uses: espressif/esp-idf-ci-action@v1
+        with:
+          esp_idf_version: ${{ matrix.idf }}
+          target: esp32s3
+          path: ${{ matrix.project }}
+
+  # The camera lab targets the classic ESP32 on the ESP32-CAM board.
+  camera:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: espressif/esp-idf-ci-action@v1
+        with:
+          esp_idf_version: v6.1
+          target: esp32
+          path: firmware/phase3/3.10-camera
+
+  # Portable C shared by the firmware and tested on the runner: warnings as errors, sanitizers on.
+  host-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: make -C firmware/host test
