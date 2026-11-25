@@ -119,6 +119,22 @@ export const questions: Question[] = [
     prompt: 'A pin’s bit in the output register reads 1, but the pin measures 0 V. Name two things to check.',
     answer: 'The pin’s bit in the output-enable register (the pin may still be an input), and the function select in the IO MUX (the pin may be assigned to another peripheral). Also worth checking: a short to ground, or the wrong pin number.',
     explain: 'The output value only reaches the pad when the driver is enabled and the pad is routed to GPIO.' },
+  { id: 'p0-ledc-update', phase: 0, lesson: '0.14', tags: ['pwm', 'drivers'], type: 'mcq', level: 2,
+    prompt: 'ledc_set_duty() returned ESP_OK, but the LED brightness did not change. Why?',
+    options: ['The duty must be a percentage', 'ledc_set_duty only writes the duty register; ledc_update_duty latches it at the next PWM period', 'The timer must be reconfigured', 'ESP_OK means the request was queued for the fade task'], answer: 1,
+    explain: 'In ESP-IDF v6.1, ledc_set_duty writes duty << 4 to the channel’s duty register. ledc_update_duty sets duty_start and the low-speed update bit, and the hardware applies the new value from the next period.' },
+  { id: 'p0-output-read', phase: 0, lesson: '0.14', tags: ['gpio', 'registers'], type: 'mcq', level: 2,
+    prompt: 'A pin is configured with GPIO_MODE_OUTPUT and set high. What does gpio_get_level() return for it, and why?',
+    options: ['1, because it reads the output register', '0, because the pad’s input path (FUN_IE) is off, so GPIO_IN does not see the pin', 'It is undefined', 'An error code'], answer: 1,
+    explain: 'gpio_get_level reads GPIO_IN. gpio_set_direction(OUTPUT) clears FUN_IE in the IO MUX register. Use GPIO_MODE_INPUT_OUTPUT to read an output back.' },
+  { id: 'p0-timing-print', phase: 0, lesson: '0.14', tags: ['timing'], type: 'short', level: 2,
+    prompt: 'A ranger triggers the sensor, prints “trigger sent”, then polls for the echo’s rising edge. Its readings are sometimes wrong. Explain.',
+    answer: 'Anything between the trigger and the edges is part of the measurement window. printf formats text and, at a newline, hands it to the console driver, which can wait for the host. If that takes longer than the sensor’s delay before ECHO rises, the rising edge is seen late and the pulse is measured short. Print after the measurement.',
+    explain: 'Never do work of unknown duration inside a timing window. Interrupts and higher-priority tasks have the same effect, which is why lesson 2.5 captures the edges in hardware.' },
+  { id: 'p0-error-check', phase: 0, lesson: '0.14', tags: ['drivers'], type: 'mcq', level: 3,
+    prompt: 'What does ESP_ERROR_CHECK(x) do when assertions are disabled in menuconfig (NDEBUG defined)?',
+    options: ['Logs the error and continues', 'Evaluates x and checks nothing', 'Aborts on any error', 'Does not evaluate x at all'], answer: 1,
+    explain: 'In esp_err.h the NDEBUG branch only evaluates x. Errors you expect, such as a sensor timeout, must be handled in code, not with ESP_ERROR_CHECK.' },
 ];
 
 export const phaseHasQuiz = (phase: number) => questions.some(q => q.phase === phase);

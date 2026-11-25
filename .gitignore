@@ -13,4 +13,5 @@ sdkconfig.*
 
 .vscode/
 __pycache__/
-firmware/host/test_all*
+firmware/host/test_all
+firmware/host/test_all.exe

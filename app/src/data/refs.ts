@@ -85,6 +85,9 @@ export const references: Record<string, string[]> = {
   "0.13": [
     "firmware/phase0/0.13-registers"
   ],
+  "0.14": [
+    "firmware/phase0/0.14-ranger"
+  ],
   "1.8": [
     "firmware/host/ringbuf.c"
   ],
