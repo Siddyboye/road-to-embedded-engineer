@@ -155,6 +155,8 @@ A PWM channel compares a counter with a duty value, as in the timer lab. Resolut
 The eye is not linear. Equal duty steps look large at the dim end and invisible at the bright end; mapping through a gamma curve of about 2.2 makes steps look even.
 
 A servo ignores duty cycle as such and reads the **pulse width**: about 1 ms to one end, 2 ms to the other, repeated every 20 ms. At 50 Hz you need many bits of resolution to get fine angle steps out of that narrow range.
+
+**Under the hood.** `ledc_set_duty` only stages the value; `ledc_update_duty` latches it at the next period; `output_invert` is a bit in the GPIO matrix, not code. Lesson 0.14 traced each LEDC call to its register, and the rows are in the [under-the-hood cheatsheet](#sheets-under-the-hood). Add a row for every call this lesson adds, such as `ledc_fade_func_install` and `ledc_set_fade_with_time`, after reading it in `esp_driver_ledc/src/ledc.c`.
 @deep
 - [ ] At 50 Hz and 14 bits, how many duty steps lie between 1 ms and 2 ms? What angle does one step represent on a 180° servo?
 - [ ] Why does a motor driver use 20 kHz when an LED is content with 1 kHz?

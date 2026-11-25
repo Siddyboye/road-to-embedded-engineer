@@ -9,7 +9,7 @@ export type Phase = {
 const L = (id: string, title: string, build: string, boards: string): Lesson => ({ id, title, build, boards });
 
 export const phases: Phase[] = [
-  { id: 0, title: 'Foundations: signals and time', weeks: '1–4', hours: 40,
+  { id: 0, title: 'Foundations: signals and time', weeks: '1–4', hours: 43,
     goal: 'Read a schematic and a datasheet, measure a signal, flash every board you own, and explain how a clock becomes a timer becomes a PWM edge.',
     lessons: [
       L('0.1', 'What an embedded system is: MCU, MPU, SoC, FPGA. Anatomy of the S3', 'Flash hello_world and read the boot log line by line', 'S3'),
@@ -25,8 +25,9 @@ export const phases: Phase[] = [
       L('0.11', 'Number systems, bit manipulation, masks, endianness, two’s complement', 'Host C drills with the bit playground', 'host'),
       L('0.12', 'Fixed-point, floats on MCUs, checksums and CRC', 'CRC-8 by hand, then table-driven; check against the widget', 'host'),
       L('0.13', 'Memory-mapped registers', 'Blink by writing the GPIO set and clear registers directly, on S3 and classic ESP32', 'both'),
+      L('0.14', 'Under the hood: trace every call from the driver to the register', 'Ultrasonic ranger with an RGB LED; dump the GPIO and IO MUX registers each call changed', 'S3'),
     ],
-    projects: 'Raw-register blink; debounced button as a state machine; PWM breathing LED; ultrasonic trigger and echo measured on the analyzer.',
+    projects: 'Raw-register blink; debounced button as a state machine; PWM breathing LED; ultrasonic trigger and echo measured on the analyzer; the ranger traced call by call to its registers.',
     capstone: 'A signal notebook of six annotated captures.' },
   { id: 1, title: 'Embedded C done properly', weeks: '5–9', hours: 55,
     goal: 'Say where every byte of a program lives, write testable drivers, and answer the classic C interview questions from understanding.',

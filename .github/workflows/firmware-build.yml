@@ -1,8 +1,10 @@
 # Builds every firmware lab for both chip families on both supported ESP-IDF versions.
 # Add a lab by adding its path to `project`.
+# workflow_dispatch lets you start it by hand from the Actions tab.
 # NOTE: this workflow has not run yet. Its first run is the compile gate for the labs.
 name: firmware-build
 on:
+  workflow_dispatch:
   push:
     paths: ['firmware/**', '.github/workflows/firmware-build.yml']
   pull_request:
@@ -23,6 +25,7 @@ jobs:
           - firmware/phase0/0.8-adc
           - firmware/phase0/0.9-wait
           - firmware/phase0/0.13-registers
+          - firmware/phase0/0.14-ranger
         exclude:
           - { target: esp32, project: firmware/phase0/0.8-adc }   # pins chosen for the S3's ADC1
     steps:

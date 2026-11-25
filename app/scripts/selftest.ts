@@ -72,7 +72,7 @@ ok('pid: proportional only leaves a third of the error', Math.abs(pidRun(2, 0, 0
 // Data integrity: every reference points at a real lesson
 const ids = new Set(allLessons.map(l => l.id));
 ok('lesson ids are unique', ids.size === allLessons.length, `${allLessons.length} lessons`);
-ok('course is 665 hours in 11 phases', totalHours === 665 && phases.length === 11, String(totalHours));
+ok('course is 668 hours in 11 phases', totalHours === 668 && phases.length === 11, String(totalHours));
 const refs = [...roadmap.flatMap(s => s.groups.flatMap(g => g.boxes.flatMap(b => refsToLessons(b.refs)))), ...jobSkills.flatMap(j => refsToLessons(j.refs)), ...shopping.map(s => s.first), ...questions.map(q => q.lesson)];
 const bad = refs.filter(r => !ids.has(r));
 ok('roadmap, jobs, shopping and quiz refs resolve', bad.length === 0, bad.join(' '));

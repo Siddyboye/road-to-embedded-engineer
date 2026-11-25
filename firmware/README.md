@@ -21,8 +21,9 @@ A lab is listed as built only when the GitHub Actions workflow has compiled it. 
 | phase0/0.8-adc | 0.8 | not yet built | not supported | S3 only: jumper GPIO6 to GPIO4 |
 | phase0/0.9-wait | 0.9, 0.10 | not yet built | not yet built | Output on GPIO6 (S3) or GPIO13 (classic) |
 | phase0/0.13-registers | 0.13 | not yet built | not yet built | LED on GPIO4; valid for pins 0 to 31 |
+| phase0/0.14-ranger | 0.14 | not yet built | not yet built | S3: TRIG 18, ECHO 17 (through the divider), RGB on 4, 5, 21; register dump on the S3 only. Classic: TRIG 13, ECHO 14, RGB on 25, 26, 27 (DevKitC-VE) |
 
-All seven were written against the ESP-IDF v6.1 API and have not been compiled. The first CI run decides; fix reports go into this table.
+All eight were written against the ESP-IDF v6.1 API and have not been compiled. The first CI run decides; fix reports go into this table.
 
 ## Reference solutions for Phases 2 and 3
 

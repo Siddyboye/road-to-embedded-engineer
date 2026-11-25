@@ -1,6 +1,6 @@
 # Embedded engineer, by building
 
-A local-first course app plus a firmware repository: ESP32-S3 first, ESP-IDF in C, from signals and registers to edge AI. It contains the app (every page, 29 interactive tools, the quiz engine), all 126 lessons, and the firmware repository.
+A local-first course app plus a firmware repository: ESP32-S3 first, ESP-IDF in C, from signals and registers to edge AI. It contains the app (every page, 29 interactive tools, the quiz engine), all 127 lessons, and the firmware repository.
 
 ## Run the app
 
@@ -22,10 +22,10 @@ Progress is stored in your browser only. Use **Your data** in the app to export,
 
 | Item | State |
 | --- | --- |
-| App source bundles and runs | Verified: bundled with esbuild; all 126 lessons, all 29 tools and all 11 phase quizzes loaded in headless Chromium with no page errors, no unknown widgets and no horizontal overflow at phone width |
+| App source bundles and runs | Verified: bundled with esbuild; all 126 lessons that existed then (0.14 was added later and has not been through this check), all 29 tools and all 11 phase quizzes loaded in headless Chromium with no page errors, no unknown widgets and no horizontal overflow at phone width |
 | Tool logic and data | Verified: `npm run selftest`, 53 checks (CRC catalogue values, UART/I2C/SPI encode-decode, scheduler inversion, quantization, FFT, debounce, aliasing, float bits, struct layout, CAN arbitration, baud drift, PID, every quiz answer key, every cross-reference) |
 | Host C code (`firmware/host`) | Verified: compiled with gcc 13, `-Wall -Wextra -Werror -Wconversion`, address and undefined-behaviour sanitizers; 93 checks pass, including the BMP280 datasheet example, the DS18B20 datasheet table, and published CRC and Modbus values |
-| Reference firmware for Phases 0, 2 and 3 (37 sources) | **Not built.** Checked against the real ESP-IDF v6.1 source: every header, function, macro, type, struct field and component name they use exists there. Their protocol and conversion logic is the verified host code above. Argument types, linking and behaviour on hardware are untested |
+| Reference firmware for Phases 0, 2 and 3 (38 sources) | **Not built.** Checked against the real ESP-IDF v6.1 source: every header, function, macro, type, struct field and component name they use exists there (for 0.14-ranger, the identifiers were checked the same way and each driver call’s implementation was read). Their protocol and conversion logic is the verified host code above. Argument types, linking and behaviour on hardware are untested |
 | `npm install` and Vite | Run by you, reported working |
 | Building firmware | **Not possible where this was written:** neither PlatformIO nor the ESP-IDF toolchain could be installed. Your `pio run`, or the GitHub Actions workflow, is the compile gate; `firmware/README.md` tracks status per lab |
 | `platformio.ini` files | **Not run.** Written to the documented `framework = espidf` layout and pinned to `espressif32 @ ^8.0.0` (ESP-IDF 6.1, confirmed from the platform's own package list); your first `pio run` is their first test |
@@ -76,6 +76,8 @@ Two extensions beyond plain Markdown:
 - `::widget <id>` on its own line embeds a tool. Ids are listed in `app/src/widgets/index.ts`; the content builder fails with a clear message if a lesson names one that does not exist.
 - A fenced block with the language `expected` is styled as “serial output you should see”.
 
+**Under the hood.** Every lesson that introduces an ESP-IDF call ends its “How it works” with an **Under the hood** note or table: for each new call, what it does underneath (registers, locks, allocation), whether it blocks, and whether an ISR may call it. Each row is read in the ESP-IDF v6.1 source, never written from memory, and is added to `content/cheatsheets/under-the-hood.md` with the lesson number. Lesson 0.14 teaches the method.
+
 Task-list items (`- [ ]`) become checkboxes saved in the learner’s progress. Run `npm run content` (or just `npm run dev`) after adding files.
 
 Quiz questions live in `app/src/data/quiz.ts`; the eight supported types are documented at the top of that file.
@@ -83,11 +85,24 @@ Quiz questions live in `app/src/data/quiz.ts`; the eight supported types are doc
 ## Status
 
 - Steps 1 to 3: done
-- Step 4, content: all 11 phases are written, 126 lessons, each in the 11-part template; 83 quiz questions; 29 interactive tools, 42 lessons embed at least one
-- Reference code: Phase 0 (7 labs), Phase 1 (host C, verified), Phases 2 and 3 (30 labs, plus an STM32 register file). All firmware is unbuilt until CI says otherwise. Phases 4 to 10 give build specifications only
+- Step 4, content: all 11 phases are written, 127 lessons, each in the 11-part template; 87 quiz questions; 29 interactive tools, 42 lessons embed at least one
+- Under the hood: lesson 0.14 traces the ultrasonic ranger’s calls (GPIO, esp_timer, ROM delay, LEDC, FreeRTOS delay, startup, error checks) to the registers, from the v6.1 source. The cheatsheet holds 18 traced calls; lessons 0.3, 0.10 and 2.4 point to it
+- Reference code: Phase 0 (8 labs), Phase 1 (host C, verified), Phases 2 and 3 (30 labs, plus an STM32 register file). All firmware is unbuilt until CI says otherwise. Phases 4 to 10 give build specifications only
 - Lesson pages show where the reference is once you press “I have attempted it”
 - Every lesson is marked draft until its code has been built
-- Step 5, the capstone guide: the capstones are specified in the lessons and on the Projects page; a dedicated guide is still to write. Cheatsheets: toolchains, S3 pins, legacy drivers, protocols, C pitfalls, FreeRTOS, GDB
+- Step 5, the capstone guide: the capstones are specified in the lessons and on the Projects page; a dedicated guide is still to write. Cheatsheets: toolchains, S3 pins, legacy drivers, protocols, C pitfalls, FreeRTOS, GDB, under the hood
+
+## Plan, in order
+
+1. Restore the host test source (`firmware/host/test_all.c`, done) and get CI running: the workflow now has `workflow_dispatch`, so it can be started from the Actions tab.
+2. Get Phase 0 building on your board, including 0.14-ranger; fix compile errors as they are reported; update `firmware/README.md`.
+3. Build the Phase 2 and 3 reference labs and fix what breaks.
+4. **Under the hood, course-wide.** As each lab builds, give its lesson an Under the hood table for every call it introduces, read in the v6.1 source, and add the rows to the cheatsheet. Order: Phase 2 (2.1 GPIO matrix, 2.2 ISR service, 2.3 GPTimer, 2.5 MCPWM capture, 2.6 ADC, 2.7 RMT), then the Phase 3 bus drivers (I2C master, SPI master, UART, I2S, TWAI), then FreeRTOS objects in Phase 4 (queues, notifications, mutexes).
+5. Reference firmware for Phases 4 to 10, each with its Under the hood table from the start.
+6. Deepen the Phase 5 to 10 lessons to the level of Phases 0 to 4.
+7. The capstone guide.
+8. Lesson 3.8: keyboard (HID) and storage (MSC) references. Lesson 3.2: BME280 humidity compensation.
+9. Flip lessons from draft once their code has built.
 
 ## Credits
 
